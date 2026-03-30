@@ -1,26 +1,104 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --navy: #0a1628;
+  --navy-mid: #0f1e38;
+  --teal: #2e86ab;
+  --teal-bright: #38a3cc;
+  --gold: #c9a84c;
+  --white: #f0f4f8;
+  --text-muted: #8899aa;
+  --border: rgba(46, 134, 171, 0.25);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-navy: var(--navy);
+  --color-navy-mid: var(--navy-mid);
+  --color-teal: var(--teal);
+  --color-teal-bright: var(--teal-bright);
+  --color-gold: var(--gold);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #0a1628;
+  color: #f0f4f8;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Scrollbar styling for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a1628;
+}
+::-webkit-scrollbar-thumb {
+  background: #2e86ab;
+  border-radius: 3px;
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid #2e86ab;
+  outline-offset: 2px;
+}
+
+/* Table styling */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(46, 134, 171, 0.2);
+}
+
+th {
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8899aa;
+  background-color: #0f1e38;
+}
+
+/* Blur effect for locked content */
+.blur-locked {
+  filter: blur(4px);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Gold accent text */
+.text-gold {
+  color: #c9a84c;
+}
+
+/* Teal accent */
+.text-teal {
+  color: #2e86ab;
+}
+
+.text-teal-bright {
+  color: #38a3cc;
+}
+
+/* Card */
+.card {
+  background-color: #0f1e38;
+  border: 1px solid rgba(46, 134, 171, 0.25);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
 }
