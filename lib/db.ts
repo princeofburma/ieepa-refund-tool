@@ -1,5 +1,4 @@
-import BetterSqlite3 from 'better-sqlite3';
-import path from 'path';
+import { kv } from '@vercel/kv';
 
 export interface AuditRecord {
   id: string;
@@ -10,53 +9,34 @@ export interface AuditRecord {
   data: string;
 }
 
-let _db: BetterSqlite3.Database | null = null;
+// Audits expire after 90 days (seconds)
+const TTL = 60 * 60 * 24 * 90;
 
-export function getDb(): BetterSqlite3.Database {
-  if (_db) return _db;
-
-  const dbPath = process.env.DATABASE_URL
-    ? path.resolve(process.env.DATABASE_URL)
-    : path.resolve('./ieepa-audits.db');
-
-  _db = new BetterSqlite3(dbPath);
-
-  _db.exec(`
-    CREATE TABLE IF NOT EXISTS audits (
-      id TEXT PRIMARY KEY,
-      created_at INTEGER NOT NULL,
-      status TEXT NOT NULL DEFAULT 'free',
-      stripe_session_id TEXT,
-      tier TEXT,
-      data TEXT NOT NULL
-    );
-  `);
-
-  return _db;
+export async function createAudit(id: string, data: object): Promise<void> {
+  const record: AuditRecord = {
+    id,
+    created_at: Date.now(),
+    status: 'free',
+    stripe_session_id: null,
+    tier: null,
+    data: JSON.stringify(data),
+  };
+  await kv.set(`audit:${id}`, record, { ex: TTL });
 }
 
-export function createAudit(id: string, data: object): void {
-  const db = getDb();
-  const stmt = db.prepare(`
-    INSERT INTO audits (id, created_at, status, stripe_session_id, tier, data)
-    VALUES (?, ?, 'free', NULL, NULL, ?)
-  `);
-  stmt.run(id, Date.now(), JSON.stringify(data));
+export async function getAudit(id: string): Promise<AuditRecord | null> {
+  const record = await kv.get<AuditRecord>(`audit:${id}`);
+  return record ?? null;
 }
 
-export function getAudit(id: string): AuditRecord | null {
-  const db = getDb();
-  const stmt = db.prepare('SELECT * FROM audits WHERE id = ?');
-  const row = stmt.get(id) as AuditRecord | undefined;
-  return row ?? null;
-}
-
-export function markAuditPaid(id: string, tier: string, stripeSessionId: string): void {
-  const db = getDb();
-  const stmt = db.prepare(`
-    UPDATE audits
-    SET status = 'paid', tier = ?, stripe_session_id = ?
-    WHERE id = ?
-  `);
-  stmt.run(tier, stripeSessionId, id);
+export async function markAuditPaid(id: string, tier: string, stripeSessionId: string): Promise<void> {
+  const record = await getAudit(id);
+  if (!record) return;
+  const updated: AuditRecord = {
+    ...record,
+    status: 'paid',
+    tier,
+    stripe_session_id: stripeSessionId,
+  };
+  await kv.set(`audit:${id}`, updated, { ex: TTL });
 }

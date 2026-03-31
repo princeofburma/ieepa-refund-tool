@@ -59,7 +59,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       },
     };
 
-    createAudit(auditId, storedData);
+    await createAudit(auditId, storedData);
 
     return NextResponse.json({
       auditId,

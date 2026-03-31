@@ -35,7 +35,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         return NextResponse.json({ error: 'Missing metadata' }, { status: 400 });
       }
 
-      markAuditPaid(auditId, tier, session.id);
+      await markAuditPaid(auditId, tier, session.id);
       console.log(`[webhook] Marked audit ${auditId} as paid (tier: ${tier})`);
     }
 

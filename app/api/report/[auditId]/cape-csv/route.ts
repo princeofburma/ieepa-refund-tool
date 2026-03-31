@@ -35,7 +35,7 @@ export async function GET(
   try {
     const { auditId } = await params;
 
-    const record = getAudit(auditId);
+    const record = await getAudit(auditId);
     if (!record) {
       return NextResponse.json({ error: 'Audit not found' }, { status: 404 });
     }
